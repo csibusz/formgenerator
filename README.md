@@ -1,670 +1,159 @@
-<!doctype html>
-<html lang="en" data-bs-theme="dark">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FormBuilder — Bootstrap 5 Modern Form Generator</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <style>
-    :root{--glass-bg:rgba(255,255,255,.06);--glass-bd:rgba(255,255,255,.12)}
-    body{min-height:100vh;background:radial-gradient(1200px 600px at 10% -20%,rgba(123,97,255,.18),transparent),
-         radial-gradient(1200px 600px at 110% 120%,rgba(0,255,168,.12),transparent)}
-    .glass{background:var(--glass-bg);border:1px solid var(--glass-bd);backdrop-filter:saturate(140%) blur(6px)}
-    .panel{border-radius:1rem}
-    .palette-item{transition:.15s;cursor:pointer}
-    .palette-item:hover{transform:translateY(-2px)}
-    .canvas-drop{min-height:220px;border:2px dashed var(--glass-bd);border-radius:1rem}
-    .field-card{cursor:grab;}
-    .field-card.dragging{opacity:.6}
-    .prop-label{font-size:.85rem;color:var(--bs-secondary)}
-    .codebox{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;white-space:pre;min-height:240px}
-    .btn-icon{display:inline-flex;align-items:center;gap:.4rem}
-    .w-36{width:36px}
-    .form-title-input{font-weight:700;font-size:1.1rem}
-  </style>
-</head>
-<body>
-<nav class="navbar navbar-expand-lg glass border-bottom sticky-top">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="#"><i class="bi bi-braces"></i> <span data-i18n="appName">FormBuilder</span></a>
-    <div class="d-flex align-items-center gap-2 ms-auto">
-      <select id="langSelect" class="form-select form-select-sm w-auto me-2" title="Language">
-        <option value="hu">🇭🇺 Magyar</option>
-        <option value="en">🇬🇧 English</option>
-        <option value="fr">🇫🇷 Français</option>
-        <option value="de">🇩🇪 Deutsch</option>
-      </select>
-      <button id="btn-new" class="btn btn-sm btn-outline-secondary btn-icon" title="New"><i class="bi bi-file-earmark"></i><span data-i18n="newBtn">New</span></button>
-      <button id="btn-preview" class="btn btn-sm btn-outline-primary btn-icon" title="Preview"><i class="bi bi-eye"></i><span data-i18n="previewBtn">Preview</span></button>
-      <button id="btn-generate" class="btn btn-sm btn-primary btn-icon" title="Generate code"><i class="bi bi-code"></i><span data-i18n="generateBtn">Generate</span></button>
-      <div class="form-check form-switch ms-2">
-        <input class="form-check-input" type="checkbox" role="switch" id="themeSwitch">
-        <label class="form-check-label" for="themeSwitch"><i class="bi bi-sun"></i></label>
-      </div>
-    </div>
-  </div>
-</nav>
+BOOTSTRAP 5 – MODERN FORM GENERATOR (EN)
 
-<div class="container-fluid py-3">
-  <div class="row g-3">
+Overview
 
-    <!-- Palette -->
-    <div class="col-12 col-md-3 col-lg-2">
-      <div class="glass panel p-3">
-        <div class="d-flex align-items-center justify-content-between mb-2">
-          <h6 class="m-0" data-i18n="fields">Fields</h6>
-          <span class="text-secondary small" data-i18n="dragDrop">Drag & Drop</span>
-        </div>
-        <div id="palette" class="row g-2"><!-- palette buttons --></div>
-        <hr>
-        <div class="mb-2"><span class="prop-label d-block" data-i18n="formTitle">Form title</span>
-          <input id="formTitle" class="form-control form-title-input" value="Contact">
-        </div>
-        <div class="row g-2">
-          <div class="col-6"><span class="prop-label d-block" data-i18n="action">Action</span>
-            <input id="formAction" class="form-control" placeholder="/req/submit.php">
-          </div>
-          <div class="col-6"><span class="prop-label d-block" data-i18n="method">Method</span>
-            <select id="formMethod" class="form-select"><option>POST</option><option>GET</option></select>
-          </div>
-          <div class="col-6"><div class="form-check mt-2">
-            <input id="ajaxSubmit" class="form-check-input" type="checkbox" checked>
-            <label class="form-check-label" for="ajaxSubmit" data-i18n="ajaxSubmit">AJAX submit</label>
-          </div></div>
-          <div class="col-6"><div class="form-check mt-2">
-            <input id="clientValidate" class="form-check-input" type="checkbox" checked>
-            <label class="form-check-label" for="clientValidate" data-i18n="clientValidate">Client-side validation</label>
-          </div></div>
-          <div class="col-12">
-            <span class="prop-label d-block" data-i18n="theme">Theme</span>
-            <select id="formTheme" class="form-select">
-              <option value="default" data-i18n="themeDefault">Default</option>
-              <option value="glass" data-i18n="themeGlass">Glass</option>
-              <option value="soft" data-i18n="themeSoft">Soft</option>
-              <option value="bordered" data-i18n="themeBorder">Bordered</option>
-              <option value="underline" data-i18n="themeUnderline">Underline</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
+A single-file, multilingual, drag-and-drop form builder powered by Bootstrap 5.
 
-    <!-- Canvas -->
-    <div class="col-12 col-md-6 col-lg-7">
-      <div class="glass panel p-3">
-        <div class="d-flex align-items-center justify-content-between mb-2">
-          <h6 class="m-0" data-i18n="formEditor">Form editor</h6>
-          <div class="text-secondary small" data-i18n="sortHint">Reorder: drag & drop • Click to edit</div>
-        </div>
-        <div id="canvas" class="canvas-drop p-2"></div>
-      </div>
-    </div>
+Build forms from a palette, tweak properties, preview live, and export HTML/JS/JSON.
 
-    <!-- Properties & Export -->
-    <div class="col-12 col-md-3 col-lg-3">
-      <div class="glass panel p-3 mb-3">
-        <h6 class="mb-2" data-i18n="properties">Properties</h6>
-        <div id="propPanel" class="text-secondary small" data-i18n="selectAField">Select a field…</div>
-      </div>
-      <div class="glass panel p-3">
-        <ul class="nav nav-tabs" id="exportTabs" role="tablist">
-          <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#codeHtml" type="button" data-i18n="tabHtml">HTML</button></li>
-          <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#codeJs" type="button" data-i18n="tabJs">JS</button></li>
-          <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#codeJson" type="button" data-i18n="tabJson">JSON</button></li>
-        </ul>
-        <div class="tab-content">
-          <div class="tab-pane fade show active" id="codeHtml">
-            <div class="d-flex gap-2 my-2">
-              <button id="copyHtml" class="btn btn-sm btn-outline-secondary"><i class="bi bi-clipboard"></i> <span data-i18n="copy">Copy</span></button>
-              <button id="downloadHtml" class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i> <span data-i18n="download">Download</span></button>
-            </div>
-            <textarea id="outHtml" class="form-control codebox" spellcheck="false"></textarea>
-          </div>
-          <div class="tab-pane fade" id="codeJs">
-            <div class="d-flex gap-2 my-2">
-              <button id="copyJs" class="btn btn-sm btn-outline-secondary"><i class="bi bi-clipboard"></i> <span data-i18n="copy">Copy</span></button>
-            </div>
-            <textarea id="outJs" class="form-control codebox" spellcheck="false"></textarea>
-          </div>
-          <div class="tab-pane fade" id="codeJson">
-            <div class="d-flex gap-2 my-2">
-              <button id="copyJson" class="btn btn-sm btn-outline-secondary"><i class="bi bi-clipboard"></i> <span data-i18n="copy">Copy</span></button>
-              <button id="loadJson" class="btn btn-sm btn-outline-secondary"><i class="bi bi-upload"></i> <span data-i18n="load">Load</span></button>
-              <button id="downloadJson" class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i> <span data-i18n="download">Download</span></button>
-            </div>
-            <textarea id="outJson" class="form-control codebox" spellcheck="false"></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
+Languages: Hungarian, English, French, German.
 
-  </div>
-</div>
+Themes: Default, Glass, Soft, Bordered, Underline. Dark/Light UI toggle.
 
-<!-- Preview Modal -->
-<div class="modal fade" id="previewModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content glass">
-      <div class="modal-header">
-        <h5 class="modal-title" data-i18n="previewTitle">Preview</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div id="previewMount"></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="close">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
+Features
 
-<!-- Toast -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
-  <div id="toast" class="toast align-items-center text-bg-dark border-0" role="alert">
-    <div class="d-flex">
-      <div class="toast-body" id="toastBody">Done.</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-    </div>
-  </div>
-</div>
+Field palette: text, email, password, number, textarea, select, radio group, checkbox list, switch, date, time, range, file, heading, divider.
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-<script>
-(() => {
-  // ===== i18n =====
-  const i18n = {
-    hu: {
-      appName:'FormBuilder', newBtn:'Új', previewBtn:'Előnézet', generateBtn:'Generálás',
-      fields:'Mezők', dragDrop:'Húzd & Dobd', formTitle:'Űrlap címe', action:'Action', method:'Módszer',
-      ajaxSubmit:'AJAX küldés', clientValidate:'Kliens validáció', formEditor:'Űrlap szerkesztő', sortHint:'Rendezés: drag & drop • Katt szerkeszt',
-      properties:'Tulajdonságok', selectAField:'Válassz ki egy mezőt…', tabHtml:'HTML', tabJs:'JS', tabJson:'JSON', copy:'Másol', download:'Letölt', load:'Betölt',
-      previewTitle:'Előnézet', close:'Bezár',
-      label:'Címke', name:'Név (name)', placeholder:'Placeholder', help:'Segítő szöveg', required:'Kötelező', colWidth:'Oszlopszélesség (1–12)',
-      rows:'Sorok', min:'Min', max:'Max', step:'Lépés', regex:'Regex minta (pattern)',
-      options:'Opciók', addOption:'Opció', multiple:'Több kiválasztható', inline:'Egysoros (inline)', duplicate:'Duplikál', delete:'Töröl',
-      emptyHint:'Húzd be a mezőket a bal oldali listából…', sectionTitle:'Szekció címe', divider:'Elválasztó',
-      generatedWith:'Generálva: FormBuilder (Bootstrap 5)', send:'Küldés', reset:'Reset',
-      codeUpdated:'Kód frissítve', copied:'Vágólapra másolva', jsonLoaded:'JSON betöltve', invalidJson:'Hibás JSON', confirmNew:'Biztosan új űrlapot kezdesz? A jelenlegi automatikusan mentésre kerül.', newFormTitle:'Új űrlap', ajaxThanks:'Köszönjük!',
-      theme:'Téma', themeDefault:'Alapértelmezett', themeGlass:'Üveges (glass)', themeSoft:'Lágy (soft)', themeBorder:'Körvonalas (bordered)', themeUnderline:'Aláhúzott (underline)',
-      types:{ text:'Szöveg', email:'E-mail', password:'Jelszó', number:'Szám', textarea:'Szövegmező', select:'Select', radio:'Rádió csoport', checkbox:'Jelölő lista', switch:'Kapcsoló', date:'Dátum', time:'Idő', range:'Csúszka', file:'Fájl', heading:'Címsor', divider:'Elválasztó' }
-    },
-    en: {
-      appName:'FormBuilder', newBtn:'New', previewBtn:'Preview', generateBtn:'Generate',
-      fields:'Fields', dragDrop:'Drag & Drop', formTitle:'Form title', action:'Action', method:'Method',
-      ajaxSubmit:'AJAX submit', clientValidate:'Client-side validation', formEditor:'Form editor', sortHint:'Reorder: drag & drop • Click to edit',
-      properties:'Properties', selectAField:'Select a field…', tabHtml:'HTML', tabJs:'JS', tabJson:'JSON', copy:'Copy', download:'Download', load:'Load',
-      previewTitle:'Preview', close:'Close',
-      label:'Label', name:'Name (name)', placeholder:'Placeholder', help:'Help text', required:'Required', colWidth:'Column width (1–12)',
-      rows:'Rows', min:'Min', max:'Max', step:'Step', regex:'Regex pattern',
-      options:'Options', addOption:'Add option', multiple:'Multiple', inline:'Inline', duplicate:'Duplicate', delete:'Delete',
-      emptyHint:'Drag fields here from the left…', sectionTitle:'Section title', divider:'Divider',
-      generatedWith:'Generated with FormBuilder (Bootstrap 5)', send:'Send', reset:'Reset',
-      codeUpdated:'Code updated', copied:'Copied to clipboard', jsonLoaded:'JSON loaded', invalidJson:'Invalid JSON', confirmNew:'Start a new form? Current state is auto-saved.', newFormTitle:'New form', ajaxThanks:'Thank you!',
-      theme:'Theme', themeDefault:'Default', themeGlass:'Glass', themeSoft:'Soft', themeBorder:'Bordered', themeUnderline:'Underline',
-      types:{ text:'Text', email:'Email', password:'Password', number:'Number', textarea:'Textarea', select:'Select', radio:'Radio group', checkbox:'Checkbox list', switch:'Switch', date:'Date', time:'Time', range:'Range', file:'File', heading:'Heading', divider:'Divider' }
-    },
-    fr: {
-      appName:'FormBuilder', newBtn:'Nouveau', previewBtn:'Aperçu', generateBtn:'Générer',
-      fields:'Champs', dragDrop:'Glisser-déposer', formTitle:'Titre du formulaire', action:'Action', method:'Méthode',
-      ajaxSubmit:'Envoi AJAX', clientValidate:'Validation côté client', formEditor:'Éditeur de formulaire', sortHint:'Réorganiser : glisser-déposer • Cliquer pour modifier',
-      properties:'Propriétés', selectAField:'Sélectionnez un champ…', tabHtml:'HTML', tabJs:'JS', tabJson:'JSON', copy:'Copier', download:'Télécharger', load:'Charger',
-      previewTitle:'Aperçu', close:'Fermer',
-      label:'Libellé', name:'Nom (name)', placeholder:'Espace réservé', help:'Texte d’aide', required:'Obligatoire', colWidth:'Largeur de colonne (1–12)',
-      rows:'Lignes', min:'Min', max:'Max', step:'Pas', regex:'Motif RegExp',
-      options:'Options', addOption:'Ajouter', multiple:'Multiple', inline:'En ligne', duplicate:'Dupliquer', delete:'Supprimer',
-      emptyHint:'Glissez des champs ici depuis la gauche…', sectionTitle:'Titre de section', divider:'Séparateur',
-      generatedWith:'Généré avec FormBuilder (Bootstrap 5)', send:'Envoyer', reset:'Réinitialiser',
-      codeUpdated:'Code mis à jour', copied:'Copié', jsonLoaded:'JSON chargé', invalidJson:'JSON invalide', confirmNew:'Commencer un nouveau formulaire ? L’état actuel est enregistré.', newFormTitle:'Nouveau formulaire', ajaxThanks:'Merci !',
-      theme:'Thème', themeDefault:'Par défaut', themeGlass:'Glass', themeSoft:'Doux', themeBorder:'Bordé', themeUnderline:'Souligné',
-      types:{ text:'Texte', email:'E-mail', password:'Mot de passe', number:'Nombre', textarea:'Zone de texte', select:'Sélection', radio:'Boutons radio', checkbox:'Cases à cocher', switch:'Interrupteur', date:'Date', time:'Heure', range:'Curseur', file:'Fichier', heading:'Titre', divider:'Séparateur' }
-    },
-    de: {
-      appName:'FormBuilder', newBtn:'Neu', previewBtn:'Vorschau', generateBtn:'Generieren',
-      fields:'Felder', dragDrop:'Ziehen & Ablegen', formTitle:'Formulartitel', action:'Action', method:'Methode',
-      ajaxSubmit:'AJAX‑Übermittlung', clientValidate:'Client‑Validierung', formEditor:'Formular-Editor', sortHint:'Sortieren: Drag & Drop • Zum Bearbeiten klicken',
-      properties:'Eigenschaften', selectAField:'Feld auswählen…', tabHtml:'HTML', tabJs:'JS', tabJson:'JSON', copy:'Kopieren', download:'Herunterladen', load:'Laden',
-      previewTitle:'Vorschau', close:'Schließen',
-      label:'Bezeichnung', name:'Name (name)', placeholder:'Platzhalter', help:'Hilfetext', required:'Erforderlich', colWidth:'Spaltenbreite (1–12)',
-      rows:'Zeilen', min:'Min', max:'Max', step:'Schritt', regex:'Regex-Muster',
-      options:'Optionen', addOption:'Option', multiple:'Mehrfach', inline:'Inline', duplicate:'Duplizieren', delete:'Löschen',
-      emptyHint:'Felder von links hierher ziehen…', sectionTitle:'Abschnittstitel', divider:'Trenner',
-      generatedWith:'Generiert mit FormBuilder (Bootstrap 5)', send:'Senden', reset:'Zurücksetzen',
-      codeUpdated:'Code aktualisiert', copied:'In die Zwischenablage kopiert', jsonLoaded:'JSON geladen', invalidJson:'Ungültiges JSON', confirmNew:'Neues Formular starten? Aktueller Zustand wird gespeichert.', newFormTitle:'Neues Formular', ajaxThanks:'Danke!',
-      theme:'Thema', themeDefault:'Standard', themeGlass:'Glas', themeSoft:'Weich', themeBorder:'Gerahmt', themeUnderline:'Unterstrichen',
-      types:{ text:'Text', email:'E-Mail', password:'Passwort', number:'Zahl', textarea:'Textbereich', select:'Auswahl', radio:'Radiogruppe', checkbox:'Kontrollkästchen', switch:'Schalter', date:'Datum', time:'Uhrzeit', range:'Bereich', file:'Datei', heading:'Überschrift', divider:'Trenner' }
+Properties: label, name, placeholder, required, help text, column width (1–12), rows (textarea), min/max/step (number/range), regex pattern, options (select/radio/checkbox), inline/multiple.
+
+Live Preview (modal).
+
+Export: HTML, JS, JSON. Import from JSON.
+
+Optional AJAX submit example (fetch; auto-detect JSON/text).
+
+Multilingual UI with a language switcher; auto-save (localStorage).
+
+Five selectable form themes that are embedded into the exported HTML for easy drop-in use.
+
+Quick Start
+
+Open the HTML file in a browser.
+
+Pick a language and a theme.
+
+Add fields from the palette, then click a field to edit its properties.
+
+Use Preview to test; use Export to copy/download HTML/JS/JSON.
+
+Usage Tips
+
+Reorder fields by dragging the “grip” on each field card.
+
+Edit a field by clicking its card; the right panel shows all properties.
+
+JSON tab: paste a saved JSON and click Load to restore a design.
+
+Theme selector (left panel) updates both the preview and exported HTML.
+
+Embedding (what you export)
+
+HTML: A <form id="generatedForm" class="form-theme-…"> block plus a small <style> scoped to #generatedForm with the selected theme’s CSS.
+
+JS (optional): The AJAX example attaches a submit handler, posts FormData to your endpoint, and shows a basic “Thank you!” alert.
+
+Minimal backend example (PHP)
+
+Return JSON with 200 OK. Always add server-side validation and CSRF in production.
+
+<?php
+header('Content-Type: application/json; charset=utf-8');
+http_response_code(200);
+echo json_encode(['ok'=>true,'message'=>'Thanks! We received your form.']);
+
+
+JSON Schema (export format)
+
+{
+  "title": "Contact",
+  "action": "/req/submit.php",
+  "method": "POST",
+  "ajax": true,
+  "validate": true,
+  "theme": "soft",
+  "fields": [
+    {
+      "id": "fabc123",
+      "type": "text|email|password|number|textarea|select|radio|checkbox|switch|date|time|range|file|heading|divider",
+      "label": "Name",
+      "name": "name",
+      "placeholder": "Type your name…",
+      "help": "We use this in our response.",
+      "required": true,
+      "col": 12,
+      "rows": 3,
+      "pattern": "^.{3,}$",
+      "min": "",
+      "max": "",
+      "step": "",
+      "inline": false,
+      "multiple": false,
+      "options": [{ "label": "Option 1", "value": "option1" }]
     }
-  };
-  let currentLang = localStorage.getItem('fb_lang') || 'en';
-  const t = (k) => (i18n[currentLang] && (i18n[currentLang][k] ?? k)) || (i18n.en[k] ?? k);
-  const typeLabel = (type) => (i18n[currentLang]?.types?.[type]) || (i18n.en.types[type] || type);
+  ]
+}
 
-  // ===== Helpers =====
-  const $ = sel => document.querySelector(sel);
-  const $$ = sel => Array.from(document.querySelectorAll(sel));
-  const toast = new bootstrap.Toast($('#toast'));
-  const showToast = (msg) => { $('#toastBody').textContent = msg; toast.show(); };
 
-  // ===== Palette defs =====
-  const paletteDefs = [
-    {type:'text',icon:'type'},{type:'email',icon:'envelope'},{type:'password',icon:'shield-lock'},{type:'number',icon:'123'},
-    {type:'textarea',icon:'justify-left'},{type:'select',icon:'list-check'},{type:'radio',icon:'ui-radios'},{type:'checkbox',icon:'check2-square'},
-    {type:'switch',icon:'toggle2-on'},{type:'date',icon:'calendar'},{type:'time',icon:'clock'},{type:'range',icon:'sliders'},
-    {type:'file',icon:'paperclip'},{type:'heading',icon:'type-h1'},{type:'divider',icon:'hr'}
-  ];
+Internationalization (i18n)
 
-  // ===== State =====
-  let form = { title:'Contact', action:'', method:'POST', ajax:true, validate:true, theme:'default', fields:[] };
-  let selectedId = null;
+UI strings live in an i18n object: hu, en, fr, de.
 
-  // ===== i18n hydrate =====
-  function applyI18nStatic(){
-    document.documentElement.setAttribute('lang', currentLang);
-    $$('[data-i18n]').forEach(el=>{
-      const key = el.getAttribute('data-i18n');
-      el.textContent = t(key);
-    });
-  }
+The language selector persists the choice in localStorage ('fb_lang').
 
-  // ===== Palette render =====
-  function renderPalette(){
-    const pal = $('#palette'); pal.innerHTML='';
-    paletteDefs.forEach(def => {
-      const col = document.createElement('div');
-      col.className = 'col-6';
-      col.innerHTML = `<div class="palette-item glass rounded p-2 text-center" data-type="${def.type}">
-          <div class="fs-4"><i class="bi bi-${def.icon}"></i></div>
-          <div class="small">${typeLabel(def.type)}</div>
-        </div>`;
-      pal.appendChild(col);
-    });
-  }
+To add a new language, copy the en block and translate keys (including types).
 
-  // palette click
-  $('#palette').addEventListener('click', e => {
-    const item = e.target.closest('.palette-item');
-    if(!item) return; addField(item.dataset.type);
-  });
+Themes
 
-  // canvas sortable
-  const canvas = $('#canvas');
-  new Sortable(canvas, {
-    animation: 150,
-    handle: '.field-card',
-    ghostClass: 'dragging',
-    onEnd: () => {
-      const ids = $$('#canvas .field-card').map(x => x.dataset.id);
-      form.fields.sort((a,b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-      persist(); render();
-    }
-  });
+Default — standard Bootstrap look.
 
-  // helpers
-  const uid = () => 'f' + Math.random().toString(36).slice(2,9);
-  const defByType = (type) => ({
-    id: uid(), type,
-    label: type==='heading'?t('sectionTitle'):(type==='divider'?t('divider'):t('label')),
-    name: (type==='heading'||type==='divider')?'':(type + '_' + Math.random().toString(36).slice(2,5)),
-    placeholder: '', help: '', required: false, col: 12, rows: 3, pattern:'',
-    min:'', max:'', step:'', inline:false, multiple:false,
-    options: (type==='select'||type==='radio'||type==='checkbox') ? [
-      {label:'Option 1', value:'option1'}, {label:'Option 2', value:'option2'}
-    ] : []
-  });
+Glass — translucent, saturated blur, vivid focus ring.
 
-  function addField(type){
-    const f = defByType(type);
-    form.fields.push(f); selectedId = f.id; persist(); render(); showToast(typeLabel(type) + ' ✓');
-  }
-  function removeField(id){ const i=form.fields.findIndex(f=>f.id===id); if(i>-1){ form.fields.splice(i,1); if(selectedId===id) selectedId=null; persist(); render(); } }
-  function cloneField(id){ const f=form.fields.find(x=>x.id===id); if(!f) return; const c=JSON.parse(JSON.stringify(f)); c.id=uid(); c.name=f.name?f.name+'_copy':''; form.fields.splice(form.fields.indexOf(f)+1,0,c); selectedId=c.id; persist(); render(); }
-  function selectField(id){ selectedId=id; renderProps(); $(`#canvas [data-id="${id}"]`)?.scrollIntoView({block:'nearest'}); }
+Soft — larger border-radius, gentle focus; rounded buttons.
 
-  // render
-  function render(){ renderCanvas(); renderProps(); generate(false); applyI18nStatic(); renderPalette(); $('#formTheme').value=form.theme; }
+Bordered — strong 2px borders; uppercase labels.
 
-  function renderCanvas(){
-    canvas.innerHTML = '';
-    if(!form.fields.length){
-      const empty = document.createElement('div');
-      empty.className = 'text-center text-secondary p-5';
-      empty.innerHTML = `<i class="bi bi-mouse fs-1 d-block mb-2"></i><span>${t('emptyHint')}</span>`;
-      canvas.appendChild(empty); return;
-    }
-    form.fields.forEach(f => {
-      const wrap = document.createElement('div');
-      wrap.className = 'field-card glass rounded p-2 mb-2';
-      wrap.dataset.id = f.id;
-      wrap.innerHTML = fieldCardHtml(f);
-      wrap.addEventListener('click', () => selectField(f.id));
-      wrap.querySelector('[data-act="del"]').addEventListener('click', (e)=>{ e.stopPropagation(); removeField(f.id); });
-      wrap.querySelector('[data-act="clone"]').addEventListener('click', (e)=>{ e.stopPropagation(); cloneField(f.id); });
-      canvas.appendChild(wrap);
-    });
-  }
+Underline — borderless inputs with only a bottom border.
 
-  function fieldCardHtml(f){
-    const badge = `<span class="badge text-bg-secondary">${typeLabel(f.type)}</span>`;
-    return `<div class="d-flex align-items-start gap-2">
-      <div class="w-36 text-center"><i class="bi bi-grip-vertical"></i></div>
-      <div class="flex-grow-1">
-        <div class="fw-semibold">${escapeHtml(f.label||'(' + t('label') + ')')} ${badge}</div>
-        ${f.help?`<div class=\"text-secondary small\">${escapeHtml(f.help)}</div>`:''}
-        <div class="small text-secondary">name=<code>${escapeHtml(f.name||'—')}</code> • col=${f.col}</div>
-      </div>
-      <div class="d-flex gap-1">
-        <button class="btn btn-sm btn-outline-secondary" data-act="clone" title="${t('duplicate')}"><i class="bi bi-files"></i></button>
-        <button class="btn btn-sm btn-outline-danger" data-act="del" title="${t('delete')}"><i class="bi bi-trash"></i></button>
-      </div>
-    </div>`
-  }
+Troubleshooting
 
-  function renderProps(){
-    $('#formTitle').value = form.title; $('#formAction').value = form.action; $('#formMethod').value = form.method; $('#ajaxSubmit').checked = form.ajax; $('#clientValidate').checked = form.validate; $('#formTheme').value=form.theme;
-    if(!selectedId){ $('#propPanel').setAttribute('data-i18n','selectAField'); $('#propPanel').textContent=t('selectAField'); return; }
-    const f = form.fields.find(x=>x.id===selectedId); if(!f){ $('#propPanel').innerHTML=''; return; }
+“Invalid or unexpected token” during build:
 
-    const common = `
-      ${['heading','divider'].includes(f.type)?'':`
-      <div class=\"mb-2\"><div class=\"prop-label\" data-i18n=\"name\">${t('name')}</div><input class=\"form-control\" id=\"prop-name\" value=\"${escapeAttr(f.name)}\"></div>
-      <div class=\"mb-2\"><div class=\"prop-label\" data-i18n=\"placeholder\">${t('placeholder')}</div><input class=\"form-control\" id=\"prop-placeholder\" value=\"${escapeAttr(f.placeholder)}\"></div>
-      <div class=\"mb-2\"><div class=\"prop-label\" data-i18n=\"required\">${t('required')}</div>
-        <div class=\"form-check form-switch\"><input class=\"form-check-input\" id=\"prop-required\" type=\"checkbox\" ${f.required?'checked':''}></div>
-      </div>
-      `}
-      <div class=\"mb-2\"><div class=\"prop-label\" data-i18n=\"label\">${t('label')}</div><input class=\"form-control\" id=\"prop-label\" value=\"${escapeAttr(f.label)}\"></div>
-      <div class=\"mb-2\"><div class=\"prop-label\" data-i18n=\"help\">${t('help')}</div><input class=\"form-control\" id=\"prop-help\" value=\"${escapeAttr(f.help)}\"></div>
-      <div class=\"mb-2\"><div class=\"prop-label\" data-i18n=\"colWidth\">${t('colWidth')}</div><input type=\"number\" min=\"1\" max=\"12\" class=\"form-control\" id=\"prop-col\" value=\"${f.col}\"></div>
-    `;
+Don’t put real line breaks inside single-quoted strings. Use \n or join with ['…','…'].join('\n').
 
-    let specific = '';
-    if(f.type==='textarea') specific += `<div class=\"mb-2\"><div class=\"prop-label\" data-i18n=\"rows\">${t('rows')}</div><input type=\"number\" min=\"1\" class=\"form-control\" id=\"prop-rows\" value=\"${f.rows}\"></div>`;
-    if(['number','range'].includes(f.type)) specific += `
-      <div class=\"row g-2\">
-        <div class=\"col-4\"><div class=\"prop-label\" data-i18n=\"min\">${t('min')}</div><input id=\"prop-min\" class=\"form-control\" value=\"${escapeAttr(f.min)}\"></div>
-        <div class=\"col-4\"><div class=\"prop-label\" data-i18n=\"max\">${t('max')}</div><input id=\"prop-max\" class=\"form-control\" value=\"${escapeAttr(f.max)}\"></div>
-        <div class=\"col-4\"><div class=\"prop-label\" data-i18n=\"step\">${t('step')}</div><input id=\"prop-step\" class=\"form-control\" value=\"${escapeAttr(f.step)}\"></div>
-      </div>`;
-    if(['text','email','password'].includes(f.type)) specific += `<div class=\"mb-2\"><div class=\"prop-label\" data-i18n=\"regex\">${t('regex')}</div><input class=\"form-control\" id=\"prop-pattern\" value=\"${escapeAttr(f.pattern)}\" placeholder=\"^.{8,}$\"></div>`;
-    if(['select','radio','checkbox'].includes(f.type)) specific += `
-      <div class=\"mb-2 d-flex align-items-center justify-content-between\"><div class=\"prop-label m-0\" data-i18n=\"options\">${t('options')}</div>
-        <button class=\"btn btn-sm btn-outline-secondary\" id=\"btn-add-option\"><i class=\"bi bi-plus\"></i> ${t('addOption')}</button>
-      </div>
-      <div id=\"optWrap\"></div>
-      ${f.type==='select'?`<div class=\"form-check\"><input id=\"prop-multiple\" class=\"form-check-input\" type=\"checkbox\" ${f.multiple?'checked':''}><label class=\"form-check-label\" data-i18n=\"multiple\">${t('multiple')}</label></div>`:''}
-      ${f.type!=='select'?`<div class=\"form-check\"><input id=\"prop-inline\" class=\"form-check-input\" type=\"checkbox\" ${f.inline?'checked':''}><label class=\"form-check-label\" data-i18n=\"inline\">${t('inline')}</label></div>`:''}
-    `;
-    if(f.type==='heading') specific += `<div class=\"text-secondary small\">${t('sectionTitle')}</div>`;
+Preview scripts not running:
 
-    $('#propPanel').innerHTML = common + specific + `<hr><div class=\"d-flex gap-2\">
-      <button class=\"btn btn-sm btn-outline-secondary\" id=\"btn-dup\"><i class=\"bi bi-files\"></i> ${t('duplicate')}</button>
-      <button class=\"btn btn-sm btn-outline-danger\" id=\"btn-del\"><i class=\"bi bi-trash\"></i> ${t('delete')}</button>
-    </div>`;
+Don’t inject <script> via innerHTML. Insert a real <script> element and set its textContent to the JS string.
 
-    // bind
-    const bind = (id,cb,ev='input') => { const el=$('#'+id); if(el) el.addEventListener(ev, cb); };
-    bind('prop-label', e=>{ f.label=e.target.value; persist(); renderCanvas(); });
-    bind('prop-name', e=>{ f.name=e.target.value; persist(); renderCanvas(); });
-    bind('prop-placeholder', e=>{ f.placeholder=e.target.value; persist(); });
-    bind('prop-help', e=>{ f.help=e.target.value; persist(); renderCanvas(); });
-    bind('prop-col', e=>{ f.col=Math.max(1,Math.min(12,parseInt(e.target.value||12))); persist(); renderCanvas(); });
-    bind('prop-required', e=>{ f.required=e.target.checked; persist(); });
-    bind('prop-rows', e=>{ f.rows=parseInt(e.target.value||3); persist(); });
-    bind('prop-min', e=>{ f.min=e.target.value; persist(); });
-    bind('prop-max', e=>{ f.max=e.target.value; persist(); });
-    bind('prop-step', e=>{ f.step=e.target.value; persist(); });
-    bind('prop-pattern', e=>{ f.pattern=e.target.value; persist(); });
-    const del=$('#btn-del'); if(del) del.addEventListener('click', ()=> removeField(f.id));
-    const dup=$('#btn-dup'); if(dup) dup.addEventListener('click', ()=> cloneField(f.id));
+“g is not defined”:
 
-    // options UI
-    if(['select','radio','checkbox'].includes(f.type)){
-      const wrap = $('#optWrap');
-      const drawOpts = () => {
-        wrap.innerHTML = '';
-        f.options.forEach((o,idx)=>{
-          const row = document.createElement('div');
-          row.className = 'input-group input-group-sm mb-1';
-          row.innerHTML = `
-            <span class=\"input-group-text\">${idx+1}</span>
-            <input class=\"form-control\" placeholder=\"Label\" value=\"${escapeAttr(o.label)}\" data-k=\"label\">
-            <input class=\"form-control\" placeholder=\"Value\" value=\"${escapeAttr(o.value)}\" data-k=\"value\">
-            <button class=\"btn btn-outline-danger\" data-k=\"del\"><i class=\"bi bi-x\"></i></button>`;
-          row.querySelector('[data-k="label"]').addEventListener('input', e=>{ o.label=e.target.value; persist(); });
-          row.querySelector('[data-k="value"]').addEventListener('input', e=>{ o.value=e.target.value; persist(); });
-          row.querySelector('[data-k="del"]').addEventListener('click', ()=>{ f.options.splice(idx,1); persist(); drawOpts(); });
-          wrap.appendChild(row);
-        });
-      };
-      drawOpts();
-      $('#btn-add-option').addEventListener('click', ()=>{ f.options.push({label:'New option', value:'new'}); persist(); drawOpts(); });
-    }
-  }
+Comes from a broken regex replace (e.g., malformed /…/g inside a template). The current preview approach avoids this entirely.
 
-  // generation
-  function generate(updateOutputs=true){
-    const {html, js} = buildOutputs();
-    if(updateOutputs){ $('#outHtml').value = html; $('#outJs').value = js; $('#outJson').value = JSON.stringify(form, null, 2); }
-  }
+Browser Support
 
-  function themeCss(theme){
-    const base = `#generatedForm .form-control,#generatedForm .form-select,#generatedForm .form-range{transition:.2s}`;
-    const focus = `#generatedForm .form-control:focus,#generatedForm .form-select:focus{box-shadow:none}`;
-    if(theme==='glass') return `${base}${focus}
-#generatedForm.form-theme-glass{backdrop-filter:saturate(140%) blur(4px)}
-#generatedForm.form-theme-glass .form-control,#generatedForm.form-theme-glass .form-select{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.2)}
-#generatedForm.form-theme-glass .form-control:focus,#generatedForm.form-theme-glass .form-select:focus{background:rgba(255,255,255,.08);border-color:rgba(0,255,168,.6)}
-#generatedForm.form-theme-glass .form-label{font-weight:600}`;
-    if(theme==='soft') return `${base}${focus}
-#generatedForm.form-theme-soft .form-control,#generatedForm.form-theme-soft .form-select{border-radius:1rem;border-color:#e9ecef}
-#generatedForm.form-theme-soft .form-control:focus,#generatedForm.form-theme-soft .form-select:focus{border-color:#7b61ff;box-shadow:0 0 0 .2rem rgba(123,97,255,.15)}
-#generatedForm.form-theme-soft .btn{border-radius:1rem}`;
-    if(theme==='bordered') return `${base}${focus}
-#generatedForm.form-theme-bordered .form-control,#generatedForm.form-theme-bordered .form-select{border:2px solid #dee2e6}
-#generatedForm.form-theme-bordered .form-control:focus,#generatedForm.form-theme-bordered .form-select:focus{border-color:#0d6efd}
-#generatedForm.form-theme-bordered .form-label{text-transform:uppercase;letter-spacing:.04em;font-size:.8rem}`;
-    if(theme==='underline') return `${base}${focus}
-#generatedForm.form-theme-underline .form-control,#generatedForm.form-theme-underline .form-select{border:0;border-bottom:2px solid #ced4da;border-radius:0;background:transparent}
-#generatedForm.form-theme-underline .form-control:focus,#generatedForm.form-theme-underline .form-select:focus{border-bottom-color:#198754}
-#generatedForm.form-theme-underline .form-label{font-weight:600}`;
-    // default
-    return `${base}${focus}`;
-  }
+Modern evergreen browsers (Chromium 100+, Firefox 100+, Safari 15.4+).
 
-  function buildOutputs(){
-    const hasFile = form.fields.some(f=>f.type==='file');
-    const needsEnctype = hasFile ? ' enctype="multipart/form-data"' : '';
-    const novalidate = form.validate ? '' : ' novalidate';
+Internet Explorer is not supported.
 
-    const rows = [];
-    let rowOpen = false, colCount = 0;
-    const pushRowOpen = () => { rows.push('<div class="row g-3">'); rowOpen=true; colCount=0; };
-    const pushRowClose = () => { if(rowOpen){ rows.push('</div>'); rowOpen=false; colCount=0; } };
+Roadmap
 
-    form.fields.forEach(f => {
-      if(f.type==='divider'){ pushRowClose(); rows.push('<hr class="my-3">'); return; }
-      if(f.type==='heading'){ pushRowClose(); rows.push('<h5 class="mt-2">'+escapeHtml(f.label||t('sectionTitle'))+'</h5>'); return; }
-      if(!rowOpen) pushRowOpen();
-      rows.push('<div class="col-12 col-md-'+f.col+'">' + fieldControlHtml(f) + '</div>');
-      colCount += f.col; if(colCount>=12){ pushRowClose(); }
-    });
-    pushRowClose();
+Accent color picker for themes.
 
-    const submitRow = [
-      '<div class="mt-3 d-flex gap-2">',
-      '  <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i> ' + t('send') + '</button>',
-      '  <button class="btn btn-outline-secondary" type="reset"><i class="bi bi-arrow-counterclockwise"></i> ' + t('reset') + '</button>',
-      '</div>'
-    ].join('\n');
+Masked inputs (phone, IBAN).
 
-    const themeClass = 'form-theme-' + form.theme;
-    const styleCss = themeCss(form.theme);
-    const rowsHtml = rows.join('\n  ');
+Validation profiles (common patterns).
 
-    const html = `<!-- ===== ${t('generatedWith')} ===== -->
-`
-      + `<style>${styleCss}</style>
-`
-      + `<form id="generatedForm" class="${themeClass}" action="${escapeAttr(form.action)}" method="${escapeAttr(form.method)}"${needsEnctype}${novalidate}>
-`
-      + `  <h4 class="mb-3">${escapeHtml(form.title)}</h4>
-`
-      + `  ${rowsHtml}
-`
-      + `  ${submitRow}
-`
-      + `</form>`;
+reCAPTCHA / hCaptcha option.
 
-    const js = form.ajax ? [
-      "// AJAX submit example (fetch + JSON response)",
-      "(function(){",
-      "  var formEl = document.getElementById('generatedForm');",
-      "  formEl.addEventListener('submit', async function(e){",
-      "    e.preventDefault();",
-      "    var fd = new FormData(formEl);",
-      "    var res = await fetch(formEl.action||'/req/submit.php', { method: formEl.method||'POST', body: fd });",
-      "    var type = (res.headers.get('content-type')||'');",
-      "    var data = type.indexOf('application/json')>-1 ? await res.json() : await res.text();",
-      "    console.log('Response:', data);",
-      "    alert('" + t('ajaxThanks').replace(/'/g, "\'") + "');",
-      "  });",
-      "})();"
-    ].join('\n') : "// AJAX disabled - default browser submission.";
+Export “HTML only” and “JS only” modes.
 
-    return { html, js };
-  }
+License
 
-  function fieldControlHtml(f){
-    const req = f.required ? ' required' : '';
-    const help = f.help ? `<div class=\"form-text\">${escapeHtml(f.help)}</div>` : '';
-    const commonAttr = `${f.placeholder?` placeholder=\"${escapeAttr(f.placeholder)}\"`:''}${f.pattern?` pattern=\"${escapeAttr(f.pattern)}\"`:''}${req}`;
+MIT
 
-    if(f.type==='textarea') return `
-      <label class=\"form-label\">${escapeHtml(f.label||typeLabel('textarea'))}</label>
-      <textarea class=\"form-control\" name=\"${escapeAttr(f.name)}\" rows=\"${f.rows}\"${commonAttr}></textarea>
-      ${help}`;
-    if(['text','email','password','date','time','number'].includes(f.type)) return `
-      <label class=\"form-label\">${escapeHtml(f.label||typeLabel(f.type))}</label>
-      <input class=\"form-control\" type=\"${f.type}\" name=\"${escapeAttr(f.name)}\"${f.min?` min=\"${escapeAttr(f.min)}\"`:''}${f.max?` max=\"${escapeAttr(f.max)}\"`:''}${f.step?` step=\"${escapeAttr(f.step)}\"`:''}${commonAttr}>
-      ${help}`;
-    if(f.type==='range') return `
-      <label class=\"form-label\">${escapeHtml(f.label||typeLabel('range'))}</label>
-      <input class=\"form-range\" type=\"range\" name=\"${escapeAttr(f.name)}\"${f.min?` min=\"${escapeAttr(f.min)}\"`:''}${f.max?` max=\"${escapeAttr(f.max)}\"`:''}${f.step?` step=\"${escapeAttr(f.step)}\"`:''}${req}>
-      ${help}`;
-    if(f.type==='file') return `
-      <label class=\"form-label\">${escapeHtml(f.label||typeLabel('file'))}</label>
-      <input class=\"form-control\" type=\"file\" name=\"${escapeAttr(f.name)}\"${req}>
-      ${help}`;
-    if(f.type==='select') return `
-      <label class=\"form-label\">${escapeHtml(f.label||typeLabel('select'))}</label>
-      <select class=\"form-select\" name=\"${escapeAttr(f.name)}\"${f.multiple?' multiple':''}${req}>
-        ${f.options.map(o=>`<option value=\"${escapeAttr(o.value)}\">${escapeHtml(o.label)}</option>`).join('')}
-      </select>
-      ${help}`;
-    if(f.type==='radio') return `
-      <div class=\"form-label\">${escapeHtml(f.label||typeLabel('radio'))}</div>
-      <div class=\"${f.inline?'d-flex gap-3 flex-wrap':''}\">
-        ${f.options.map((o,idx)=>`<div class=\"form-check${f.inline?' form-check-inline':''}\">
-            <input class=\"form-check-input\" type=\"radio\" name=\"${escapeAttr(f.name)}\" id=\"${f.id}_${idx}\" value=\"${escapeAttr(o.value)}\"${req}>
-            <label class=\"form-check-label\" for=\"${f.id}_${idx}\">${escapeHtml(o.label)}</label>
-          </div>`).join('')}
-      </div>
-      ${help}`;
-    if(f.type==='checkbox') return `
-      <div class=\"form-label\">${escapeHtml(f.label||typeLabel('checkbox'))}</div>
-      <div class=\"${f.inline?'d-flex gap-3 flex-wrap':''}\">
-        ${f.options.map((o,idx)=>`<div class=\"form-check${f.inline?' form-check-inline':''}\">
-            <input class=\"form-check-input\" type=\"checkbox\" name=\"${escapeAttr(f.name)}[]\" id=\"${f.id}_${idx}\" value=\"${escapeAttr(o.value)}\"${req}>
-            <label class=\"form-check-label\" for=\"${f.id}_${idx}\">${escapeHtml(o.label)}</label>
-          </div>`).join('')}
-      </div>
-      ${help}`;
-    if(f.type==='switch') return `
-      <div class=\"form-check form-switch\">
-        <input class=\"form-check-input\" type=\"checkbox\" role=\"switch\" name=\"${escapeAttr(f.name)}\" id=\"${f.id}\"${req}>
-        <label class=\"form-check-label\" for=\"${f.id}\">${escapeHtml(f.label||typeLabel('switch'))}</label>
-      </div>
-      ${help}`;
-    return `<div class=\"text-secondary small\">(Unknown: ${escapeHtml(f.type)})</div>`;
-  }
+Contributing
 
-  // escape helpers
-  function escapeHtml(s=''){ return s.replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
-  function escapeAttr(s=''){ return s.replace(/[&<>\"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c])); }
+Fork → feature branch → PR.
 
-  // form-level bindings
-  $('#formTitle').addEventListener('input', e=>{ form.title=e.target.value; persist(); });
-  $('#formAction').addEventListener('input', e=>{ form.action=e.target.value; persist(); });
-  $('#formMethod').addEventListener('change', e=>{ form.method=e.target.value; persist(); });
-  $('#ajaxSubmit').addEventListener('change', e=>{ form.ajax=e.target.checked; generate(); persist(); });
-  $('#clientValidate').addEventListener('change', e=>{ form.validate=e.target.checked; generate(); persist(); });
-  $('#formTheme').addEventListener('change', e=>{ form.theme=e.target.value; generate(); persist(); });
+Keep translations consistent (keys under i18n.xx and i18n.xx.types).
 
-  // theme (dark/light of app)
-  $('#themeSwitch').checked = (document.documentElement.getAttribute('data-bs-theme')==='dark');
-  $('#themeSwitch').addEventListener('change', e=>{
-    document.documentElement.setAttribute('data-bs-theme', e.target.checked?'dark':'light');
-    localStorage.setItem('fb_theme', e.target.checked?'dark':'light');
-  });
-  const savedTheme = localStorage.getItem('fb_theme');
-  if(savedTheme) document.documentElement.setAttribute('data-bs-theme', savedTheme);
-
-  // language switch
-  const langSelect = $('#langSelect'); langSelect.value=currentLang;
-  langSelect.addEventListener('change', ()=>{ currentLang = langSelect.value; localStorage.setItem('fb_lang', currentLang); applyI18nStatic(); renderPalette(); render(); });
-
-  // preview (safe script injection)
-  $('#btn-preview').addEventListener('click', ()=>{
-    const {html, js} = buildOutputs();
-    const mount = document.getElementById('previewMount');
-    mount.innerHTML = html;
-    const s = document.createElement('script'); s.type='text/javascript'; s.textContent = js; mount.appendChild(s);
-    new bootstrap.Modal(document.getElementById('previewModal')).show();
-  });
-
-  // generate & copy
-  $('#btn-generate').addEventListener('click', ()=>{ generate(); showToast(t('codeUpdated')); });
-  const copy = (id)=>{ navigator.clipboard.writeText($(id).value).then(()=>showToast(t('copied'))); };
-  $('#copyHtml').addEventListener('click', ()=>copy('#outHtml'));
-  $('#copyJs').addEventListener('click', ()=>copy('#outJs'));
-  $('#copyJson').addEventListener('click', ()=>copy('#outJson'));
-  $('#downloadHtml').addEventListener('click', ()=> download('form.html', $('#outHtml').value));
-  $('#downloadJson').addEventListener('click', ()=> download('form.json', $('#outJson').value));
-  $('#loadJson').addEventListener('click', async ()=>{
-    const txt = $('#outJson').value.trim(); if(!txt) return;
-    try{ const obj = JSON.parse(txt); form = obj; selectedId=null; persist(); render(); showToast(t('jsonLoaded')); }
-    catch(e){ showToast(t('invalidJson')); }
-  });
-
-  function download(filename, text){
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([text], {type: 'text/plain'}));
-    a.download = filename; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 500);
-  }
-
-  // new form
-  $('#btn-new').addEventListener('click', ()=>{
-    if(confirm(t('confirmNew'))){
-      form = { title: t('newFormTitle'), action:'', method:'POST', ajax:true, validate:true, theme:'default', fields:[] };
-      selectedId=null; persist(); render();
-    }
-  });
-
-  // persistence
-  function persist(){ localStorage.setItem('formBuilderState', JSON.stringify(form)); }
-  function revive(){
-    const raw = localStorage.getItem('formBuilderState');
-    if(raw){ try{ const obj = JSON.parse(raw); if(obj && obj.fields){ form = obj; if(!form.theme) form.theme='default'; } }catch(e){} }
-  }
-
-  // boot
-  revive();
-  applyI18nStatic();
-  renderPalette();
-  render();
-})();
-</script>
-</body>
-</html>
+Keep functions short and readable; no build step required.
